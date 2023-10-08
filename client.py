@@ -1,9 +1,11 @@
 import socket
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 server_address = ('127.0.0.1', 12345)
-client_socket.connect(server_address)
+server_socket.connect(server_address)
 message = input("SPEAK. ") 
-client_socket.send(message.encode('utf-8')) 
-
-client_socket.close()
+server_socket.send(message.encode('utf-8')) 
+server_socket.send(str(len(message)).encode('utf-8')) 
+response = server_socket.recv(1024).decode('utf-8')
+print(response)
+server_socket.close()

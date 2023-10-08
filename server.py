@@ -12,20 +12,23 @@ print("CONNECT ALREADY")
 client_socket, client_address = server_socket.accept()
 print("Connected with client {}".format(client_address))
 received_data = b""
-while True:
-    data = client_socket.recv(1024)
-    if not data:
-        break
-    received_data += data
+received_data = client_socket.recv(1024)
 
 time.sleep(5)
 
 if received_data:
     received_text = received_data.decode('utf-8')
+    expected_size = client_socket.recv(1024).decode('utf-8')
     current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
     print("Client says: {}".format(received_text))
     print("at time: {}".format(current_time))
+    
     response = "Server received your message: '{}'".format(received_text)
+    if int(len(received_text)) == int(expected_size):
+        print("String length is consistent.")
+    else:
+        print("String length is INCONSISTENT: stated {}, received {}".format(expected_size, len(received_text)))
+        response += ", but data was lost in transmission."
     client_socket.send(response.encode('utf-8'))
 
 client_socket.close()
