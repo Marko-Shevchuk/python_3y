@@ -3,14 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form processing</title>
+    <title>Обробка форми</title>
 </head>
 <body>
-    <h1>Index</h1>
+    <h1>Index html</h1>
+
     <form action="/cgi-bin/formhandler.py" method="post">
-        Username:<input type="text" name="username">
-        Password:<input type="password" name="password">
-        <input type="submit" value="Submit">
+        Username: <input type="text" name="username">
+        Password: <input type="password" name="password">
+        <br>
+        <input type="radio" name="lang" value="en"> Ангійська
+        <input type="radio" name="lang" value="ua"> Українська
+        <br>
+        <input type="checkbox" name="ipz31" value="on"> ІПЗ-31
+        <input type="checkbox" name="ipz32" value="on"> ІПЗ-32
+        <input type="checkbox" name="ipz33" value="on"> ІПЗ-33
+        <br>
+        <input type="submit" value="Вхід">
     </form>
+
+
+
 </body>
 </html>
