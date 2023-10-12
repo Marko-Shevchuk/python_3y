@@ -3,60 +3,72 @@ import html
 import http.cookies
 import os
 
-form = cgi.FieldStorage()
-
-try:
-    username = form.getfirst("username", "admin")
-    password = form.getfirst("password", "")
-    username = html.escape(username)
-    password = html.escape(password)
-   
-    lang = form.getvalue("lang", "не обрано мову")
-
-    groups = ["ipz31", "ipz32", "ipz33"]
-    groups_checkbox = {}
-    for group in groups:
-        value_choice = form.getvalue(group, "off")
-        groups_checkbox[group] = value_choice
-       
-    if username == "admin" and password == "admin1234":
-        message = "вхід виконано успішно"
-    else:
-        message = "вхід не успішний, перевірте дані входу"
-
-except (NameError, KeyError) as e:
-    message = "введіть дані для форми"
-    lang = None
-    print(message)
-    
-print(f"Set-cookie: name={username};")
-print(f"Set-cookie: password={password[0]};")
-
+def delete_cookies(cookie):
+    for key in cookie.keys():
+        cookie[key]['expires'] = 0
 cookie = http.cookies.SimpleCookie(os.environ.get("HTTP_COOKIE"))
-name_cookie = cookie.get("name").value
-password_cookie = cookie.get("password").value
 
+
+if "counter" in cookie.keys():
+    counter = int(cookie["counter"].value)
+else:
+    counter = 0
+
+form = cgi.FieldStorage()    
+counter += 1
+
+
+if "delete_cookies" in form:
+    delete_cookies(cookie)
+    counter = 0
+username = form.getfirst("username", "Anonymous")
+password = form.getfirst("password", "")
+lang = form.getvalue("lang", "en")
+toppings = ["tomato", "salami", "pineapple", "olives"]
+toppings_checkbox = {}
+for topping in toppings:
+    value_choice = form.getvalue(topping, "off")
+    toppings_checkbox[topping] = value_choice
+
+username = html.escape(username)
+password = html.escape(password)
+lang = html.escape(lang)
+print(f"Set-cookie: counter={counter}")
+print(f"Set-cookie: name={username};")
+print(f"Set-cookie: password={password};")
 print("Content-type:text/html\r\n\r\n")
-
+escaped_cookie = html.escape(os.environ["HTTP_COOKIE"])
 template_html = f"""
 <!DOCTYPE html>
 <html lang="{lang}">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Обробка форми</title>
+    <title>Form Processing</title>
 </head>
 <body>
-    <h1> Hi, {username} </h1>
-    <h1> {message} </h1>
-    <h2> {groups_checkbox=} </h2>
-    <h3> {os.environ["HTTP_COOKIE"]=} </h3>
-    <h3> From cookie: {name_cookie=} {password_cookie=} </h3>
+    <h1>Welcome, {username}!</h1>
+    <h2>Order number (form number) {counter}</h2>
+    <h3>Groups Selected: {toppings_checkbox}</h3>
+    <h3>Escaped cookie: {escaped_cookie}</h3>
+    <br><br>
+    You can try again:
+    <form action="formhandler.py" method="post">
+        Enter credentials to order 4-dimensional pizza<br>
+        Username: <input type="text" name="username">
+        Password: <input type="password" name="password">
+        <br>
+        <input type="radio" name="lang" value="en"> English
+        <input type="radio" name="lang" value="ua"> Українська
+        <br>
+        <input type="checkbox" name="tomato" value="on"> Tomato
+        <input type="checkbox" name="salami" value="on"> Salami
+        <input type="checkbox" name="pineapple" value="on"> Pineapple
+        <input type="checkbox" name="olives" value="on"> Olives
+        <br>
+        <input type="submit" value="Order">
+        <input type="submit" name="delete_cookies" value="Delete Cookies">
+    </form>
 </body>
 </html>
 """
 print(template_html)
-
-
-
-
-
